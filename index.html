@@ -1,12 +1,13 @@
 <html>
   <head>
-    <!-- <script src="zmusic.asm.js"></script> -->
-    <!-- zmusic.jsがdistフォルダ内にあるためパスを修正 -->
-    <script src="dist/zmusic.js"></script>
-    <!-- faviconが見つからない場合、以下を追加するか無視してください -->
-    <!-- <link rel="icon" href="path/to/your/favicon.ico"> -->
+    <!-- AudioWorkletNode を無効化して、ScriptProcessorNode を強制利用 -->
     <script>
-      // ArrayBufferを取得するためのXHRラッパー
+      window.AudioWorkletNode = undefined;
+    </script>
+    <!-- zmusic.js が dist フォルダ内にある場合のパス -->
+    <script src="dist/zmusic.js"></script>
+    <script>
+      // ArrayBuffer を取得するためのXHRラッパー
       function xhr(url) {
         return new Promise(function (resolve, reject) {
           var xhr = new XMLHttpRequest();
@@ -23,12 +24,13 @@
       // 音データを保持する変数
       let soundData = null;
       
+      // ZMUSIC のインストールと音データの取得
       Promise.all([
          ZMUSIC.install(),
          xhr('./test.zms')
       ]).then(results => {
          soundData = results[1];
-         // 自動再生する場合は以下のコメントを外してください
+         // 自動再生したい場合は以下のコメントを外す
          // ZMUSIC.play(soundData);
       });
       
@@ -49,4 +51,3 @@
     <button id="playButton">音を鳴らす</button>
   </body>
 </html>
-
