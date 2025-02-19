@@ -1,9 +1,12 @@
 <html>
   <head>
     <!-- <script src="zmusic.asm.js"></script> -->
+    <!-- zmusic.jsがdistフォルダ内にあるためパスを修正 -->
     <script src="dist/zmusic.js"></script>
+    <!-- faviconが見つからない場合、以下を追加するか無視してください -->
+    <!-- <link rel="icon" href="path/to/your/favicon.ico"> -->
     <script>
-      // XHRでarraybufferを取得するためのPromiseラッパー
+      // ArrayBufferを取得するためのXHRラッパー
       function xhr(url) {
         return new Promise(function (resolve, reject) {
           var xhr = new XMLHttpRequest();
@@ -24,9 +27,8 @@
          ZMUSIC.install(),
          xhr('./test.zms')
       ]).then(results => {
-         // 取得した音データを変数に格納
          soundData = results[1];
-         // ※ 自動再生させたい場合は下記のコメントを外してください
+         // 自動再生する場合は以下のコメントを外してください
          // ZMUSIC.play(soundData);
       });
       
@@ -47,3 +49,4 @@
     <button id="playButton">音を鳴らす</button>
   </body>
 </html>
+
