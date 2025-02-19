@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <!-- <script src="zmusic.asm.js"></script> -->
+    <script src="dist/zmusic.js"></script>
+    <script>
+      // XHRでarraybufferを取得するためのPromiseラッパー
+      function xhr(url) {
+        return new Promise(function (resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.responseType = 'arraybuffer';
+          xhr.addEventListener('load', e => {
+            resolve(xhr.response);
+            xhr.abort();
+          }, false);
+          xhr.send();
+        });
+      }
+      
+      // 音データを保持する変数
+      let soundData = null;
+      
+      Promise.all([
+         ZMUSIC.install(),
+         xhr('./test.zms')
+      ]).then(results => {
+         // 取得した音データを変数に格納
+         soundData = results[1];
+         // ※ 自動再生させたい場合は下記のコメントを外してください
+         // ZMUSIC.play(soundData);
+      });
+      
+      // DOM読み込み後にボタンのクリックイベントを設定
+      window.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('playButton').addEventListener('click', function() {
+          if (soundData) {
+            ZMUSIC.play(soundData);
+          } else {
+            console.log("まだ音データが読み込まれていません。");
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <!-- ボタンを押すと音を再生 -->
+    <button id="playButton">音を鳴らす</button>
+  </body>
+</html>
