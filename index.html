@@ -1,19 +1,29 @@
 <html>
   <head>
-    <!-- AudioWorkletNode を無効化して、ScriptProcessorNode を強制利用 -->
     <script>
-      window.AudioWorkletNode = undefined;
+      // AudioWorkletNode を削除して、ライブラリに ScriptProcessorNode を使わせる
+      try {
+        // まず削除を試みる
+        delete window.AudioWorkletNode;
+      } catch (e) {
+        console.warn("AudioWorkletNode の削除に失敗:", e);
+      }
+      // 削除できなかった場合でも、getter を使って undefined を返すようにする
+      Object.defineProperty(window, 'AudioWorkletNode', {
+        get: function() { return undefined; },
+        configurable: true
+      });
     </script>
-    <!-- zmusic.js が dist フォルダ内にある場合のパス -->
+    <!-- zmusic.js を正しいパスから読み込む -->
     <script src="dist/zmusic.js"></script>
     <script>
-      // ArrayBuffer を取得するためのXHRラッパー
+      // ArrayBuffer を取得するための XHR ラッパー
       function xhr(url) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', url, true);
           xhr.responseType = 'arraybuffer';
-          xhr.addEventListener('load', e => {
+          xhr.addEventListener('load', function() {
             resolve(xhr.response);
             xhr.abort();
           }, false);
@@ -24,17 +34,17 @@
       // 音データを保持する変数
       let soundData = null;
       
-      // ZMUSIC のインストールと音データの取得
+      // ZMUSIC のインストールと音データの読み込み
       Promise.all([
-         ZMUSIC.install(),
-         xhr('./test.zms')
+        ZMUSIC.install(),
+        xhr('./test.zms')
       ]).then(results => {
-         soundData = results[1];
-         // 自動再生したい場合は以下のコメントを外す
-         // ZMUSIC.play(soundData);
+        soundData = results[1];
+        // ※ 自動再生する場合は下記のコメントを外す
+        // ZMUSIC.play(soundData);
       });
       
-      // DOM読み込み後にボタンのクリックイベントを設定
+      // DOM 読み込み後にボタンのクリックイベントを設定
       window.addEventListener('DOMContentLoaded', function() {
         document.getElementById('playButton').addEventListener('click', function() {
           if (soundData) {
